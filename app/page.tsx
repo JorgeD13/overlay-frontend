@@ -1,28 +1,30 @@
 "use client"
-
 import { useEffect, useState } from "react";
 
-//const BACKEND_URL = "http://127.0.0.1:5000";
-const BACKEND_URL = "https://overlay-backend.onrender.com";
+const BACKEND_URL = "https://overlay-backend.onrender.com"
+//const BACKEND_URL = "http://127.0.0.1:5000"
 
 export default function App() {
-  const [message, setMessage] = useState("Esperando notificaciones...");
+  const [message, setMessage] = useState("Esperando mensaje...");
 
   useEffect(() => {
-    const eventSource = new EventSource(`${BACKEND_URL}/stream`);
-
-    eventSource.onmessage = (event) => {
-      setMessage(event.data);
+    const fetchMessage = async () => {
+      try {
+        const response = await fetch(BACKEND_URL + "/get_message");
+        const data = await response.json();
+        setMessage(data.message);
+      } catch (error) {
+        console.error("Error fetching message:", error);
+      }
     };
 
-    return () => {
-      eventSource.close(); // Cerrar la conexión al desmontar
-    };
+    const interval = setInterval(fetchMessage, 3000); // Consulta cada 3 segundos
+    return () => clearInterval(interval);
   }, []);
 
   return (
     <div>
-      <h1>Notificaciones</h1>
+      <h1>Último mensaje recibido:</h1>
       <p>{message}</p>
     </div>
   );
