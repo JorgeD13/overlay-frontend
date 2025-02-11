@@ -8,7 +8,7 @@ const BACKEND_URL = "https://overlay-backend.onrender.com/get_message"
 export default function TwitchAlert() {
   const [message, setMessage] = useState("");
   const [visible, setVisible] = useState(false);
-  const [lastText, setLastText] = useState(""); // Para evitar repetir mensajes
+  const [lastTime, setLastTime] = useState(""); // Para evitar repetir mensajes
 
   useEffect(() => {
     const fetchMessage = async () => {
@@ -16,9 +16,9 @@ export default function TwitchAlert() {
         const response = await fetch(BACKEND_URL);
         const data = await response.json();
         
-        if (data.subtext && data.subtext !== lastText) {
-          setMessage(data.subtext);
-          setLastText(data.subtext);
+        if (data.message && data.time && data.time !== lastTime) {
+          setMessage(data.message);
+          setLastTime(data.time);
           setVisible(true);
           setTimeout(() => setVisible(false), 5000); // Se oculta después de 5s
         }
@@ -30,7 +30,7 @@ export default function TwitchAlert() {
     // Hacer polling cada 5 segundos
     const interval = setInterval(fetchMessage, 5000);
     return () => clearInterval(interval); // Limpia el intervalo al desmontar
-  }, [lastText]);
+  }, [lastTime]);
 
   return (
     <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50">
